@@ -1,0 +1,11 @@
+test:
+    driver: postgres
+    open: dbname=mashup-test sslmode=disable
+
+development:
+    driver: postgres
+    open: dbname=mashup-dev sslmode=disable
+    
+production:
+    driver: postgres
+    open: dbname=mashup-prod sslmode=verify-full
