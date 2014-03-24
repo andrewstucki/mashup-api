@@ -35,12 +35,12 @@ func (endpoint RepoEndpoint) Register(container *restful.Container) {
   ws.Route(ws.GET("/").Filter(middleware.AuthCheck).To(endpoint.getRepos).
     // docs
     Doc("Get Repositories").
-    Writes(model.Repos{})) // on the response
+    Writes(model.Repo{})) // on the response
 
   ws.Route(ws.PUT("/{id}").Filter(middleware.AuthCheck).To(endpoint.putRepo).
     // docs
     Doc("Update Repository").
-    Writes(model.Repos{})) // on the response
+    Writes(model.Repo{})) // on the response
 
   ws.Route(ws.GET("/{account}/{name}").Filter(middleware.AuthCheck).To(endpoint.getRepo).
     // docs

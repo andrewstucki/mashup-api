@@ -6,10 +6,6 @@ import (
 	"github.com/mashup-cms/mashup-api/globals"
 )
 
-type Repos struct {
-	Repos []Repo `json:"repos"`
-}
-
 type RepoService struct {
 	Repo *Repo `json:"repo"`
 }

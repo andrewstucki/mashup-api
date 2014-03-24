@@ -4,10 +4,6 @@ import (
 	"time"
 )
 
-type GithubAccounts struct {
-	Accounts []GithubAccount `json:"githubAccounts"`
-}
-
 type GithubAccountService struct {
 	Account *GithubAccount `json:"githubAccount"`
 }

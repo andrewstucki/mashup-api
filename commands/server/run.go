@@ -4,11 +4,14 @@ import(
   "github.com/emicklei/go-restful"
 	"github.com/emicklei/go-restful/swagger"
   
+  "github.com/mashup-cms/mashup-api/globals"
   "github.com/mashup-cms/mashup-api/connections"
   "github.com/mashup-cms/mashup-api/helpers"
   "github.com/mashup-cms/mashup-api/endpoint"
   "github.com/mashup-cms/mashup-api/commands"
-  
+  "github.com/mashup-cms/mashup-api/websocket"
+  "github.com/mashup-cms/mashup-api/workers"
+    
   "log"
   "time"
   "net/http"
@@ -23,6 +26,7 @@ var RunCmd = &commands.Command{
 }
 
 func runServer(cmd *commands.Command, args ...string) {
+  globals.ExternalQueue = false
 	connections.SetupRedis()
 	connections.SetupPostgres()
 
@@ -52,6 +56,11 @@ func runServer(cmd *commands.Command, args ...string) {
 		SwaggerFilePath: "../../swagger-ui/dist",
 	}
 	swagger.RegisterSwaggerService(config, wsContainer)
+	
+	workers.StartWorkers()
+	go websocket.Hub.Run()
+	wsContainer.Handle("/stream", websocket.Handler())
+	wsContainer.Handle("/upload", &endpoint.UploadHandler{})
 
 	wsContainer.Filter(helpers.EnableCORS)
 

@@ -7,6 +7,9 @@ import (
 	"github.com/mashup-cms/mashup-api/middleware"
 	"github.com/mashup-cms/mashup-api/model"
 	"github.com/mashup-cms/mashup-api/services"
+	
+	"errors"
+	"net/http"
 )
 
 type AuthEndpoint struct{}
@@ -40,7 +43,7 @@ func (r AuthEndpoint) Register(container *restful.Container) {
 }
 
 func (r AuthEndpoint) login(request *restful.Request, response *restful.Response) {
-	credentials := &Credentials{}
+  credentials := &Credentials{}
 	err := request.ReadEntity(credentials)
 	matched := false
 	var token *model.AccessToken
@@ -53,7 +56,15 @@ func (r AuthEndpoint) login(request *restful.Request, response *restful.Response
 				if token == nil {
 					token = model.GenerateAccessToken(user.Id, 1)
 				}
+			} else {
+			  err = errors.New("Invalid Credentials!")
+      	response.WriteErrorString(http.StatusUnauthorized, err.Error())
+			  return
 			}
+		} else {
+		  err = errors.New("Invalid Credentials!")
+    	response.WriteErrorString(http.StatusUnauthorized, err.Error())
+		  return
 		}
 	}
 	helpers.ServiceResponse(response, token, err)

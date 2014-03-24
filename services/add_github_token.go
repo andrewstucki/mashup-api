@@ -1,13 +1,13 @@
 package services
 
 import (
-  "log"
-
   "github.com/google/go-github/github"
   "code.google.com/p/goauth2/oauth"
   
   "github.com/mashup-cms/mashup-api/model"
   "github.com/mashup-cms/mashup-api/globals"
+  
+  "errors"
 )
 
 func AddGithubToken(token string, userId int) (*model.GithubAccount, error) {
@@ -18,10 +18,7 @@ func AddGithubToken(token string, userId int) (*model.GithubAccount, error) {
   }
   
   client := github.NewClient(transport.Client())
-  githubAccount, data, err := client.Users.Get("")
-  if err != nil {
-    log.Printf("%s, %s, %s",err.Error(), data, transport.Token)
-  }
+  githubAccount, _, err := client.Users.Get("")
   if err == nil {
     updated := false
     obj, _ := globals.PostgresConnection.Get(model.GithubAccount{}, *githubAccount.ID)
@@ -70,15 +67,13 @@ func AddGithubToken(token string, userId int) (*model.GithubAccount, error) {
           return account, nil
         }
       } else {
-        return account, nil
+        return account, errors.New("backend error")
       }
     }
     
     //error on insert/update
-    log.Printf("error")
-    return account, nil
+    return account, errors.New("error on insert")
   } else {
-    log.Printf("no user found")
-    return account, nil
+    return account, errors.New("no user account found")
   }  
 }

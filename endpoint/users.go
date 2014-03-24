@@ -28,7 +28,7 @@ func (endpoint UserEndpoint) Register(container *restful.Container) {
     Doc("Create a user").
     Writes(model.User{})) // on the response
 
-  ws.Route(ws.GET("/{id}").Filter(middleware.AuthCheck).To(endpoint.getUser).
+  ws.Route(ws.GET("/{login}").Filter(middleware.AuthCheck).To(endpoint.getUser).
     // docs
     Doc("Get a user").
     Writes(model.User{})) // on the response
@@ -46,9 +46,9 @@ func (endpoint UserEndpoint) getUsers(request *restful.Request, response *restfu
 }
 
 func (endpoint UserEndpoint) getUser(request *restful.Request, response *restful.Response) {
-  id := request.PathParameter("id")
+  login := request.PathParameter("login")
   authToken := request.Attribute("authToken").(*model.AccessToken)
-  account, err := services.FindUser(id, authToken.UserId)
+  account, err := services.FindUserByName(login, authToken.UserId)
   helpers.ServiceResponse(response, account, err)
 }
 

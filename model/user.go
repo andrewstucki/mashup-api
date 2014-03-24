@@ -11,10 +11,6 @@ type UserService struct {
   User *User `json:"user"`
 }
 
-type Users struct {
-  Users []User `json:"users"`
-}
-
 type User struct {
   Id int `db:"id" json:"id"`
   Name NullString `db:"name" json:"name,omitempty"`

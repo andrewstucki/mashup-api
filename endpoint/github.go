@@ -32,7 +32,7 @@ func (endpoint GithubEndpoint) Register(container *restful.Container) {
 	ws.Route(ws.GET("/").Filter(middleware.AuthCheck).To(endpoint.getAccounts).
 		// docs
 		Doc("Get GitHub accounts").
-		Writes(model.GithubAccounts{})) // on the response
+		Writes(model.GithubAccount{})) // on the response
 
 	ws.Route(ws.GET("/{login}").Filter(middleware.AuthCheck).To(endpoint.getAccount).
 		// docs
@@ -77,8 +77,8 @@ func (endpoint GithubEndpoint) getAdmins(request *restful.Request, response *res
 func (endpoint GithubEndpoint) addAdmins(request *restful.Request, response *restful.Response) {
 	login := request.PathParameter("login")
 	authToken := request.Attribute("authToken").(*model.AccessToken)
-	users := &model.Users{}
-	err := request.ReadEntity(users)
+	users := []model.User{}
+	err := request.ReadEntity(&users)
 	if err == nil && authToken != nil && login != "" {
 		err = services.AddGithubAdmins(login, users, authToken.UserId)
 	} else {
@@ -90,8 +90,8 @@ func (endpoint GithubEndpoint) addAdmins(request *restful.Request, response *res
 func (endpoint GithubEndpoint) removeAdmins(request *restful.Request, response *restful.Response) {
 	login := request.PathParameter("login")
 	authToken := request.Attribute("authToken").(*model.AccessToken)
-	users := &model.Users{}
-	err := request.ReadEntity(users)
+	users := []model.User{}
+	err := request.ReadEntity(&users)
 	if err == nil && authToken != nil && login != "" {
 		err = services.RemoveGithubAdmins(login, users, authToken.UserId)
 	} else {
@@ -110,8 +110,9 @@ func (endpoint GithubEndpoint) getAccount(request *restful.Request, response *re
 func (endpoint GithubEndpoint) syncAccount(request *restful.Request, response *restful.Response) {
 	login := request.PathParameter("login")
 	authToken := request.Attribute("authToken").(*model.AccessToken)
-	account, err := services.SyncGithubAccount(login, authToken.UserId)
-	helpers.ServiceResponse(response, account, err)
+	taskId := helpers.SecureToken()
+	task, err := services.SyncGithubAccount(taskId, login, authToken.UserId, authToken.Token)
+	helpers.ServiceResponse(response, task, err)
 }
 
 func (endpoint GithubEndpoint) getAccounts(request *restful.Request, response *restful.Response) {

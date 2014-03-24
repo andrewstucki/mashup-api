@@ -3,19 +3,13 @@ package helpers
 import (
 	"github.com/emicklei/go-restful"
 	"net/http"
+	"log"
 )
 
-type service interface {
-	GetService() interface{}
-}
-
 func ServiceResponse(response *restful.Response, object interface{}, err error) {
+  log.Printf("response %s", err)
 	if err == nil {
-		if serviceObj, ok := object.(service); ok {
-			response.WriteEntity(serviceObj.GetService())
-		} else {
-			response.WriteEntity(object)
-		}
+		response.WriteEntity(object)
 		return
 	}
 	response.WriteErrorString(http.StatusNotFound, err.Error())
